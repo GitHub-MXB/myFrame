@@ -1,1 +1,1 @@
-Delete white character:/>[ \f\n\r\t\v]+</1
+Delete white character:/>[ \f\n\r\t\v]+</123
