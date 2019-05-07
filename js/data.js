@@ -3,7 +3,7 @@ var data = {
         href: "https://www.baidu.com",
         content: "百度一下，你就知道",
         'class': {
-            "abc": false
+            "class": false
         }
     }
 };
@@ -30,15 +30,17 @@ var dataDom = {
                 fn: function () {
                     return data.link.href;
                 }
-            },
-            "class": {
-                value: "link {link.class}",
-                set: function (str) {
-                    return "link " + data.link['class'][str] ? str : "";
-                },
-                get: function () {
+            }
+        },
+        "class": {
+            value: "link {link.class}",
+            fn: function () {
+                // forEach(data.link['class'], function (value, index) {
 
-                }
+                // });
+            },
+            set: function () {
+                return "link " + data.link['class'][str] ? str : "";
             }
         }
     }
