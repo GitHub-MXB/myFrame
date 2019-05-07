@@ -1,0 +1,115 @@
+//所有标签完全一样
+//除了专有标签
+html {
+    overflow-x: hidden;
+    overflow-y: auto;
+    // user-select: none;//禁用选择
+}
+
+body {
+    font-family: "Microsoft YaHei";
+    // 垃圾ie不用雅黑会出问题
+    // font-family: "Source Han Sans CN";
+    // 其他用思源黑体
+}
+
+body,
+span,
+p,
+a,
+input,
+textarea,
+img,
+table,
+thead,
+tbody,
+tfoot,
+tr,
+td,
+ul,
+ol {
+    //容器
+    position: relative;
+    vertical-align: top;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    left: 0;
+    top: 0;
+    max-width: 100%;
+}
+
+img {
+    max-height: 100%;
+}
+
+//隔断
+div,
+body {
+    font-size: 0; //防止字体大小污染
+}
+
+p,
+div {
+    *display: inline; //ie用
+    *zoom: 1;
+    display: inline-block; //内联样式好用
+}
+
+span,
+a,
+input,
+textarea,
+img {
+    display: inline-block; //内联样式好用
+}
+
+input,
+textarea {
+    //input专属的
+    background: none;
+    resize: none;
+    *font-family: "Microsoft YaHei";
+    font-family: inherit;
+    // caret-color: red;
+
+    &:focus {
+        outline: 0;
+    }
+}
+
+input {
+    padding: 5px;
+}
+
+textarea {
+    overflow: hidden;
+    text-indent: 1em;
+}
+
+a {
+    color: inherit;
+    *color: red;
+    text-decoration: none;
+}
+
+.bg-img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+table {
+    //table不太好替代
+    border-collapse: collapse; //边框是否合并
+    table-layout: fixed;
+    border-spacing: 0;
+}
+
+ul,
+ol {
+    padding-left: 35px;
+    /*padding-left控制前面的符号,margin-left控制外边距,ie6,7不指定就没符号，其他的只要有margin就有值。使用时，必须padding-left指定，不指定时，换成div更好！*/
+}
