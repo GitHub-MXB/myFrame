@@ -2,53 +2,65 @@ var data = {
     link: {
         href: "https://www.baidu.com",
         content: "百度一下，你就知道",
-        'class': {
-            "class": false
-        }
+        'class': true,
+        'class2': false,
+        map: {
+            value: 100,
+            fn: function () {
+                return this.value + "abc";
+            }
+        },
+        map2: function () {
+            return this.href + "abc";
+        },
+        html1: "<h1>html</h1>",
+        html2: {
+            value: "<h1>{wap}</h1>",
+            obj: {
+
+            }
+        },
     }
 };
-
-function DomName(nodeName) {
-    this.node = {};
-    this.attr = {};
-}
-console.log(new DomName());
-var dataDom = {
+//用时，即赋值时就完成处理，赋值一次只处理一个，不要取的时候处理
+var data2 = {
     link: {
-        node: {
-            "1": "123{link.content}",
-            setDom: function () { //设置dom的值，常用
-                return "123" + data.link['class'];
-            },
-            getDom: function () { //读取dom的值，
-                return "123" + data.link.content;
+        href: "https://www.baidu.com",
+        content: "百度一下，你就知道",
+        'class1': "class1", //class一体化
+        'class2': "class2",
+        map: "100abc",
+        map2: "https://www.baidu.comabc"
+    }
+};
+var dataDom = { //自动生成的
+    link: {
+        text: {
+            'content': {
+                key: 1,
+                value: "123{link.content}"
             }
         },
         attr: {
             "href": {
-                value: "{link.href}",
-                fn: function () {
-                    return data.link.href;
-                }
+                value: "{link.href}"
             }
         },
-        "class": {
-            value: "link {link.class}",
-            fn: function () {
-                // forEach(data.link['class'], function (value, index) {
-
-                // });
-            },
-            set: function () {
-                return "link " + data.link['class'][str] ? str : "";
-            }
+        "class": "link {link.class1}123{link.class2}",
+        element: "{link.html}"
+    }
+};
+fn = function (obj) { //先用这个，以后换成fn2
+    return obj.replace(/[^{}]+|{([^}]+)}/g, function (a, b) { //    
+        if (b) {
+            a = data2;
+            forEach(b.split("."), function (value, key) {
+                a = a[value];
+            });
         }
-    }
-};
-var arr = {
-    1: {
-        dom: "link",
-        type: "node",
-        index: "1"
-    }
-};
+        return a;
+    });
+}
+// fn2 = function () {
+//     return "link " + data2['link']['class1'] + "123" + data2['link']['class2'];
+// }

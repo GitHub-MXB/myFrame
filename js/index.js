@@ -8,25 +8,24 @@ ready(function () {
         });
         return ret;
     }
-    var fn = function (a) {
-        return a + 10;
-    };
     Ajax("GET", "ajax.txt", "", function (e) {
         console.log(e);
     })
     // var typ = document.createAttribute("isMould");
     // typ.nodeValue = "";
     // attr.setNamedItem(typ);
-    // />[ }\n]+</ 可以取消所有空白节点
     var a = getElementsByClassName(document.body, "link")[0];
-
-    forEach(document.body.childNodes, function (value, index) {
-        console.log(value.tagName);
-    });
-    // console.log(JSON.parse(a.attributes["attr"].nodeValue));
-    console.log(dataDom.link.node.setDom());
-    data.link.content = "hello";
-    console.log(data.link.content, dataDom.link.node.setDom());
+    console.time("time");
+    var b = document.createElement("div");
+    b.innerHTML = a.outerHTML;
+    b = b.children[0];
+    var str = fn(dataDom.link['class']['value']);
+    console.timeEnd("time");
+    console.log(str);
+    a.innerHTML = b.tagName;
+    arr = [];
+    arr.unshift("a")
+    console.log(arr, index)
 });
 
 function getNode(dom) {

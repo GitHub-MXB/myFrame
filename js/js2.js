@@ -16,7 +16,11 @@ function ready(fn) {
 }
 
 function Ajax(method, url, data, fun) { //不管跨域，可优化
-    var xhr = new XMLHttpRequest() || new ActiveXObject("Microsoft.XMLHTTP");
+    if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest();
+    } else {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+    }
     (method == 'GET') ? url = url + '?' + data: null; //路径与数据分开
     xhr.open(method, url, true); //默认是异步true
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -26,8 +30,17 @@ function Ajax(method, url, data, fun) { //不管跨域，可优化
     }
 }
 
-function forEach(obj, fun) {
-    for (var i = 0, len = obj.length; i < len; i++) fun(obj[i], i);
+function forEach(obj, fn, index) {
+    if (obj.length >= 0) {
+        for (var key = index || 0, len = obj.length; key < len; key++)
+            fn(obj[key], key);
+    } else {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                fn(obj[key], key);
+            }
+        }
+    }
 }
 
 function dom(str) {
