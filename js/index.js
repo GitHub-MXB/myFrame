@@ -1,31 +1,20 @@
 ready(function () {
-    window.getElementsByClassName = function (dom, cls) {
-        var ret = [];
-        forEach(dom.getElementsByTagName('*'), function (value, index) {
-            if ((" " + value.className).indexOf(" " + cls) >= 0) {
-                ret.push(value);
-            }
-        });
-        return ret;
-    }
     Ajax("GET", "ajax.txt", "", function (e) {
         console.log(e);
-    })
+    });
     // var typ = document.createAttribute("isMould");
     // typ.nodeValue = "";
     // attr.setNamedItem(typ);
     var a = getElementsByClassName(document.body, "link")[0];
     console.time("time");
     var b = document.createElement("div");
-    b.innerHTML = a.outerHTML;
-    b = b.children[0];
-    var str = fn(dataDom.link['class']['value']);
+    b.innerHTML = "<h1>{wap}</h1>";
+    b = b.childNodes[0];
+    // var str = fn(dataDom.link['class']['value']);
+    // console.log(str);
+    // a.innerHTML = b.tagName;
     console.timeEnd("time");
-    console.log(str);
-    a.innerHTML = b.tagName;
-    arr = [];
-    arr.unshift("a")
-    console.log(arr, index)
+    console.log(b);
 });
 
 function getNode(dom) {
