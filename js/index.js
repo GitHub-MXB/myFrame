@@ -5,61 +5,36 @@ ready(function () {
     // var typ = document.createAttribute("isMould");
     // typ.nodeValue = "";
     // attr.setNamedItem(typ);
-    var a = getElementsByClassName(document.body, "link")[0];
-    console.time("time");
-    var b = document.createElement("div");
-    b.innerHTML = "<h1>{wap}</h1>";
-    b = b.childNodes[0];
+    // console.time("time");
+    // var b = document.createElement("div");
+    // b.innerHTML = "<h1>{wap}</h1>";
+    // b = b.childNodes[0];
     // var str = fn(dataDom.link['class']['value']);
     // console.log(str);
     // a.innerHTML = b.tagName;
-    console.timeEnd("time");
-    console.log(b);
+    // console.timeEnd("time");
+    // console.log(b);
+    forEach(dom(document.body, "link"), function (value, key) {
+        console.log(value);
+    });
 });
 var dataArr = [];
-
-function setData(cls, key, value) {
-    var let1 = data[cls];
-    switch (typeof let1[key]) {
-        case "object":
-            let1[key].value = value;
-            break;
-        case "boolean":
-            if (value) {
-                let1[key] = key;
-            } else {
-                let1[key] = "";
-            }
-            break;
-        default:
-            let1[key] = value;
-            break;
-    }
-    dataArr.push(cls, key);
-}
-var arr = ["link", "href"];
-setData("link", "href", "百度");
-
-function addr(arr) {
-    return data2[arr[0]][arr[1]];
-}
-console.time("time");
-var a = addr(arr);
-console.timeEnd("time");
-console.log(a, typeof true);
 
 function getNode(dom) {
     var let1 = dom.childNodes[2].nodeValue;
     return let1;
 }
 
-function set(fn1) {
-    fn1();
-    fn2(); //处理给data2
-}
-set(function (self) { //用户的操作写这里
-    self.href = "a"; //setData
+data1.link.setData(function () { //用户的操作写这里
+    this.setData1("href", "abcd");
+    this.setData1("map2", function () {
+        return this.href + "a";
+    });
+    //setData1是建议操作，可直接赋值
+    this.href = "abcde";
 });
+console.log(data1, data2);
+console.log(dataDom.link.el);
 
 function getAttr(dom) {
     var let1 = dom.attributes;

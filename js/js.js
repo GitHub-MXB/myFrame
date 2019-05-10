@@ -33,7 +33,8 @@ function Ajax(method, url, data, fun) { //不管跨域，可优化
         }
     };
 }
-window.getElementsByClassName = function (dom, cls) {
+
+function dom(dom, cls) {
     var ret = [];
     forEach(dom.getElementsByTagName('*'), function (value, index) {
         if ((" " + value.className).indexOf(" " + cls) >= 0) {
@@ -46,16 +47,16 @@ window.getElementsByClassName = function (dom, cls) {
 function forEach(obj, fn, index) {
     if (obj.length >= 0) {
         for (var key = index || 0, len = obj.length; key < len; key++)
-            fn(obj[key], key);
+            fn.call(obj, obj[key], key);
     } else {
         for (var key1 in obj) {
             if (obj.hasOwnProperty(key1)) {
-                fn(obj[key1], key1);
+                fn.call(obj, obj[key1], key1);
             }
         }
     }
 }
 
-function dom(str) {
-    return document.getElementById(str);
-}
+// function dom(str) {
+//     return document.getElementById(str);
+// }
