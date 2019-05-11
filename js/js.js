@@ -42,7 +42,7 @@ function dom(dom, cls) {
         }
     });
     return ret;
-};
+}
 
 function forEach(obj, fn, index) {
     if (obj.length >= 0) {
