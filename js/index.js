@@ -5,18 +5,17 @@ ready(function () {
     // var typ = document.createAttribute("isMould");
     // typ.nodeValue = "";
     // attr.setNamedItem(typ);
-    // console.time("time");
-    // var b = document.createElement("div");
-    // b.innerHTML = "<h1>{wap}</h1>";
-    // b = b.childNodes[0];
-    // var str = fn(dataDom.link['class']['value']);
-    // console.log(str);
-    // a.innerHTML = b.tagName;
-    // console.timeEnd("time");
-    // console.log(b);
-    forEach(dom(document.body, "link"), function (value, key) {
-        console.log(value);
-    });
+    console.time("a");
+    dom1 = dom(document.body, "link")[0];
+    dom2 = dom1.cloneNode(true);
+    attr = dom2.attributes;
+    attr.href.nodeValue = data_dom.link.href;
+    console.timeEnd("a");
+    console.log(dom1, dom2);
+
+    arr = node_array(dom1);
+    console.log(arr, dom(document.body, "link")[0]);
+    React();
 });
 var dataArr = [];
 
@@ -25,16 +24,14 @@ function getNode(dom) {
     return let1;
 }
 
-data1.link.setData(function () { //用户的操作写这里
-    this.setData1("href", "abcd");
-    this.setData1("map2", function () {
-        return this.href + "a";
-    });
-    //setData1是建议操作，可直接赋值
-    this.href = "abcde";
+data.link.setData(function () { //用户的操作写这里
+    this.map.value = 50;
+    this.map.fn = function () {
+        return this.map.value + 50;
+    };
 });
-console.log(data1, data2);
-console.log(dataDom.link.el);
+console.log(data, data_dom);
+
 
 function getAttr(dom) {
     var let1 = dom.attributes;
@@ -45,3 +42,4 @@ function getAttr(dom) {
     });
     return let2;
 }
+console.timeEnd("time");

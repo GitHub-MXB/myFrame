@@ -35,6 +35,8 @@ function Ajax(method, url, data, fun) { //不管跨域，可优化
 }
 
 function dom(dom, cls) {
+    if (document.getElementsByClassName)
+        return document.getElementsByClassName(cls);
     var ret = [];
     forEach(dom.getElementsByTagName('*'), function (value, index) {
         if ((" " + value.className).indexOf(" " + cls) >= 0) {
@@ -45,6 +47,7 @@ function dom(dom, cls) {
 }
 
 function forEach(obj, fn, index) {
+    if (obj == undefined) return;
     if (obj.length >= 0) {
         for (var key = index || 0, len = obj.length; key < len; key++)
             fn.call(obj, obj[key], key);
