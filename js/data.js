@@ -1,4 +1,4 @@
-new Vue({
+Vue({
     el: 'link',
     data: {
         href: "https://www.baidu.com",
@@ -19,7 +19,7 @@ new Vue({
         html1: "<h1>html</h1>"
     }
 });
-new Vue({
+Vue({
     el: "el",
     data: {
         html2: "<h1>{wap}</h1>",

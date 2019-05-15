@@ -1,105 +1,128 @@
 function ready(fn) {
-    document.addEventListener("DOMContentLoaded", function () {
-        document.removeEventListener("DOMContentLoaded", arguments.callee, false);
-        fn();
-    }, false);
-    document.attachEvent('onreadystatechange', function () {
-        if (document.readyState == 'complete') {
-            document.detachEvent('onreadystatechange', arguments.callee);
-            fn(); //函数执行
-        }
-    });
-}
-
-function Ajax(method, url, data, fun) { //不管跨域
-    xhr = new XMLHttpRequest();
-    (method == 'GET') ? url = url + '?' + data: null; //路径与数据分开
-    xhr.open(method, url, true); //默认是异步true
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.send(data);
-    xhr.onreadystatechange = function () { //异步获取的
-        (xhr.readyState == 4 && xhr.status == 200) ? fun(xhr.responseText): null;
+    if (document.addEventListener) {
+        document.addEventListener("DOMContentLoaded", function () {
+            document.removeEventListener("DOMContentLoaded", arguments.callee, false);
+            fn();
+        }, false);
+    } else {
+        document.attachEvent('onreadystatechange', function () {
+            if (document.readyState == 'complete') {
+                document.detachEvent('onreadystatechange', arguments.callee);
+                fn(); //函数执行
+            }
+        });
     }
 }
 var eventAll = {}; //事件核心,向其添加函数即可
-$ = event = function (str) {
+var event = function (str) {
     return String(str);
-}
+};
 
-function on(event, className, fun) {
-    if (!eventAll[event])
-        eventAll[event] = {};
-    if (!eventAll[event][className]) {
-        eventAll[event][className] = [];
-    }
+function key(event, className, fun) {
+    eventAll[event] = eventAll[event] || {};
+    eventAll[event][className] = eventAll[event][className] || [];
     eventAll[event][className].push(function (e, parentsClass, This) {
         if (parentsClass.indexOf(className.toLowerCase()) > -1) {
             fun(e.target, This, e);
         }
     });
 }
-String.prototype.on = function (event, fun) {
-    on(event, this.toString(), fun);
-}
+String.prototype.on = function (event, fn) {
+    key(event, this.toString(), fn);
+};
 String.prototype.classNameArr = function () {
     return this.toLowerCase().split(" ");
-}
+};
 Element.prototype.classNameArr = function () {
     return this.className.toLowerCase().split(" ");
-}
-
-function map(num, fn) { //数据映射
-    return fn(num);
-}
+};
 
 function iniEvent() {
-    for (var i = 0, keys = Object.keys(eventAll), len = keys.length; i < len; i++)
-        inievent(keys[i]);
-}
-
-function inievent(on) {
-    document.addEventListener(on, function (e) {
-        var target = e.target;
-        var parentsClass = target.parentsClass();
-        for (var i = 0, keys = Object.keys(eventAll[on]), len = keys.length; i < len; i++) {
-            forEach(eventAll[on][keys[i]], function (j, fn) {
-                fn(e, parentsClass, target.parents().This(keys[i]));
-            })
-        }
+    console.time("iniEvent");
+    forEach(eventAll, function (value, key) {
+        document.addEventListener(key, function (e, target, parentsClass) {
+            target = e.target;
+            parentsClass = target.parentsClass();
+            forEach(value, function (value, key) {
+                forEach(value, function (value) {
+                    value(e, parentsClass, target.parents().This(key));
+                });
+            });
+        });
     });
-}
-
-function getDom(class_name) {
-    return document.getElementsByClassName(class_name);
+    console.timeEnd("iniEvent");
 }
 // Element.prototype.data = {};
-Element.prototype.getDom = function (class_name) {
-    return this.getElementsByClassName(class_name);
-}
-Element.prototype.addClass = function (str) { //仅限一个
-    var dom = this;
-    forEach(str.classNameArr(), function (i, a) {
-        if (!dom.isClass(a))
-            dom.className += " " + a;
-    })
-}
 Array.prototype.This = function (str) {
     for (var i = 0, len = this.length; i < len; i++) {
         if (this[i].classNameArr().indexOf(str) > -1) {
             return this[i];
         }
     }
-}
+};
+Element.prototype.isClass = function (str) {
+    return (" " + this.className).indexOf(" " + str) >= 0;
+};
+
+// Element.prototype.index = -1;
+Element.prototype.parents = function () {
+    return parents(this, [this]);
+
+    function parents(dom, arr) {
+        node = dom.parentNode;
+        if (!node) {
+            return [];
+        }
+        if (node == document.body) {
+            return arr;
+        }
+        arr.push(node);
+        return parents(node, arr);
+    }
+};
+
+Element.prototype.parentsClass = function () { //返回所有父元素的class ，.li.content都返回
+    return parentsClass(this, this.classNameArr());
+
+    function parentsClass(dom, arr, str) {
+        node = dom.parentNode;
+        //获取this
+        if (node instanceof String) {
+            return parentsClass(node, arr.concat(name.classNameArr()));
+        } else {
+            return arr;
+        }
+    }
+};
+//次要的
+Element.prototype.addClass = function (str) { //仅限一个
+    var dom = this;
+    forEach(str.classNameArr(), function (value, key) {
+        if (!dom.isClass(value))
+            dom.className += " " + value;
+    });
+};
 Element.prototype.removeClass = function (str) { //仅限一个
     var dom = this;
     var name = dom.className;
-    forEach(str.classNameArr(), function (i, a) {
-        dom.className = name.replace(RegExp("\(\?\:\^\|\\s\)" + a + "\\b"), "");
+    forEach(str.classNameArr(), function (value) {
+        dom.className = name.replace(RegExp("\(\?\:\^\|\\s\)" + value + "\\b"), "");
     });
-}
-Element.prototype.isClass = function (str) {
-    return this.className.search("\(\?\:\^\|\\s)" + str + "\\b") >= 0;
-}
+};
+// Element.prototype.deP = function (key, value) { //defineProperty
+//     if (!this.hasOwnProperty('data')) {
+//         this.data = {};
+//     }
+//     if (!this.data.hasOwnProperty(key)) {
+//         this.data[key] = {};
+//     }
+//     this.data[key] = value;
+//     fn = dataFn[key][value];
+//     if (typeof fun == "function") {
+//         fn(this, key);
+//     }
+// };
+//其他的
 Element.prototype.getCss = function (css) { //返回真实样式,需要优化
     if (getComputedStyle) {
         return getComputedStyle(this, false)[css];
@@ -110,88 +133,35 @@ Element.prototype.getCss = function (css) { //返回真实样式,需要优化
     // if (arguments.length == 1)
     //     return a;
     // this.style.css = arguments[1];
-}
+};
 Element.prototype.getStyle = function () {
     if (getComputedStyle) {
         return getComputedStyle(this, false); //ie9+
     } else {
         return this.currentStyle;
     }
-}
+};
 Element.prototype.setCss = function (css, value) {
     this.style[css] = value;
-}
-Element.prototype.indexOf = function () {
-    [].indexOf.call(this.parentElement.children, this);
-}
-Element.prototype.index = -1;
-Element.prototype.parents = function () {
-    function parents(dom, arr) {
-        node = dom.parentNode;
-        if (node = dom.parentNode) {
+};
 
-        } else {
-            return [];
+function forEach(obj, fn, index, key, exit) {
+    if (obj == undefined) return;
+    if (obj.length >= 0) {
+        for (key = index || 0, len = obj.length; key < len; key++) {
+            exit = fn.call(obj, obj[key], key);
+            if (exit != undefined) {
+                return exit;
+            }
         }
-        if (node == document.body) {
-            return arr;
-        }
-        arr.push(node);
-        return parents(node, arr);
-    }
-    return parents(this, [this]);
-}
 
-Element.prototype.parentsClass = function () { //返回所有父元素的class ，.li.content都返回
-    function parentsClass(dom, arr, str) {
-        node = dom.parentNode;
-        //获取this
-        if (name = node.className) {
-            return parentsClass(node, arr.concat(name.classNameArr()));
-        } else {
-            return arr;
+    } else {
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                fn.call(obj, obj[key], key);
+            }
         }
     }
-    return parentsClass(this, this.classNameArr());
-}
-Element.prototype.deP = function (key, value) { //defineProperty
-    if (!this.hasOwnProperty('data')) {
-        this.data = {};
-    }
-    if (!this.data.hasOwnProperty(key)) {
-        this.data[key] = {};
-    }
-
-    this.data[key] = value;
-    fn = dataFn[key][value];
-    if (isFunction(fn)) {
-        fn(this, key);
-    }
-}
-
-function isFunction(fun) {
-    return typeof fun === "function";
-}
-
-function index(parent, dom) {
-    return [].indexOf.call(parent, dom);
-}
-
-function addTab(tab, content) {
-    getEl(tab)[0].onclick = function (event) {
-        event.stopPropagation();
-        alert(
-            [].indexOf.call(this.getEl(tab)[0].children, event.target)
-        );
-    };
-}
-
-function forEach(obj, fun) {
-    for (var i = 0, len = obj.length; i < len; i++)
-        fun(i, obj[i]);
-}
-String.prototype.to_num = function () {
-    return Number(this.match(/\d+/));
 }
 
 function getRatio(key) {

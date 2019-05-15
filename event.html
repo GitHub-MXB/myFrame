@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="js/js.js"></script>
+    <script src="js/event.js"></script>
+    <script>
+        ready(function () {
+            event("a").on("mouseover", function (e) {
+                console.log("a mouseover", this);
+            });
+            event("a").on("mouseout", function (e) {
+                console.log("a mouseout", this);
+            });
+
+            dom1 = dom(document, "a")[0];
+            console.log(dom1);
+            console.time("time");
+            a = targetNode(dom1, "a");
+            console.timeEnd("time");
+            console.log(a);
+            // document.body.parentNode
+            // document.attachEvent("onmouseout", function (e) { //attachEvent需要event前面加on
+            //     //event.relatedTarget属性在mouseover中相当于IE浏览器的event.fromElement属性，在mouseout中相当于IE浏览器的event.toElement
+            //     console.log(e, e.toElement);
+            // });
+            iniEvent();
+            console.log(eventAll);
+        });
+    </script>
+    <style>
+        .body {
+            height: 500px;
+            background-color: red;
+        }
+
+        .a {
+            background-color: blue;
+            /* animation: abc 2s 2; */
+        }
+
+        @keyframes abc {
+            0% {
+                width: 100%
+            }
+
+            100% {
+                width: 0%
+            }
+        }
+    </style>
+</head>
+
+<body class="body">
+    <div>
+        <!-- <p class="a">123456</p> -->
+        <input type="text" name="" id="" class="a">
+    </div>
+</body>
+
+</html>

@@ -1,3 +1,4 @@
+//通用
 function ready(fn) {
     if (document.addEventListener) {
         document.addEventListener("DOMContentLoaded", function () {
@@ -33,32 +34,72 @@ function Ajax(method, url, data, fun) { //不管跨域，可优化
     };
 }
 
+var dom_extend = {
+    getDom: function (class_name) {
+        return this.getElementsByClassName(class_name);
+    },
+    isClass: function (str) {
+        return (" " + this.className).indexOf(" " + str) >= 0;
+    }
+};
+if (window.HTMLElement) {
+    forEach(window.dom_extend, function (value, key) {
+        HTMLElement.prototype[key] = value;
+    });
+}
+
 function dom(dom, cls) {
-    if (document.getElementsByClassName)
-        return document.getElementsByClassName(cls);
+    function dom_extend_fn(dom) {
+        forEach(window.dom_extend, function (value, key) {
+            dom[key] = value;
+        });
+        return dom;
+    }
+    if (dom.getElementsByClassName)
+        return dom.getElementsByClassName(cls);
     var ret = [];
     forEach(dom.getElementsByTagName('*'), function (value, index) {
-        if ((" " + value.className).indexOf(" " + cls) >= 0) {
+        if (isClass(value, cls)) {
+            dom_extend_fn(value);
             ret.push(value);
         }
     });
     return ret;
 }
 
-function forEach(obj, fn, index) {
+function isClass(dom, str) {
+    return (" " + dom.className + " ").indexOf(" " + str + "") >= 0;
+}
+
+function forEach(obj, fn, index, key, exit) {
     if (obj == undefined) return;
     if (obj.length >= 0) {
-        for (var key = index || 0, len = obj.length; key < len; key++)
-            fn.call(obj, obj[key], key);
+        for (key = index || 0, len = obj.length; key < len; key++) {
+            exit = fn.call(obj, obj[key], key);
+            if (exit != undefined) {
+                return exit;
+            }
+        }
+
     } else {
-        for (var key1 in obj) {
-            if (obj.hasOwnProperty(key1)) {
-                fn.call(obj, obj[key1], key1);
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                fn.call(obj, obj[key], key);
             }
         }
     }
 }
+//框架主体
 //用时，即赋值时就完成处理，赋值一次只处理一个，不要取的时候处理
+data = {};
+data_dom = {};
+dom_data = {};
+var domArr = [];
+Object.prototype.setData = function (fn) {
+    fn.call(this);
+    this.setData1(this, this._addr[0]);
+    domArr.push(this);
+};
 Object.prototype.setData1 = function (value, addr, _addr) {
     _addr = this;
     forEach(value, function (value, key) {
@@ -90,14 +131,16 @@ Object.prototype.setData1 = function (value, addr, _addr) {
         }
     });
 };
-var domArr = [];
-Object.prototype.setData = function (fn) {
-    fn.call(this);
-    this.setData1(this, this._addr[0]);
-    domArr.push(this);
-};
 
-function setData(fn, data_dom, dom_data, dom, attr, text, str) {
+function Vue(obj) { //创建初始数据
+    data[obj.el] = obj.data;
+    data_dom[obj.el] = {};
+    dom_data[obj.el] = dom_data[obj.el] || {};
+    data[obj.el]._addr = [data_dom[obj.el], dom_data[obj.el], obj.el];
+    setData(function () {});
+}
+
+function setData(fn, data_dom, dom_data, dom, attr, text, str) { //设置值到dom
     fn.call(data);
     forEach(domArr, function (value, key) { //这里更新dom，即domArr
         data_dom = value._addr[0];
@@ -129,36 +172,35 @@ function setData(fn, data_dom, dom_data, dom, attr, text, str) {
     });
     domArr = [];
 }
-data = {};
-data_dom = {};
 
-function node_array(dom, arr) {
-    function allNode(node, arr) {
-        if (node.attributes.mould) {
-            return;
+function getData(obj, c) { //将a.b这种的替换成实际值
+    return obj.replace(/{([^}]+)}/g, function (a, b) { //   
+        if (b && c) {
+            forEach(b.split("."), function (value, key) {
+                c = c[value] || "";
+            });
         }
-        forEach(node.children, function (value, key) {
-            arr.push(value);
-            allNode(value, arr);
-        });
+        return c;
+    });
+}
+
+function React(arr, This, This2, str) { //获取dom的信息
+    function node_array(dom, arr) { //获取节点的数组
+        function allNode(node, arr) {
+            if (node.attributes.mould) {
+                return;
+            }
+            forEach(node.children, function (value, key) {
+                arr.push(value);
+                allNode(value, arr);
+            });
+        }
+        if (!dom)
+            return;
+        arr = [dom];
+        allNode(dom, arr);
+        return arr;
     }
-    if (!dom)
-        return;
-    arr = [dom];
-    allNode(dom, arr);
-    return arr;
-}
-
-function Vue(obj) {
-    data[obj.el] = obj.data;
-    data_dom[obj.el] = {};
-    dom_data[obj.el] = dom_data[obj.el] || {};
-    data[obj.el]._addr = [data_dom[obj.el], dom_data[obj.el], obj.el];
-    setData(function () {});
-}
-dom_data = {};
-
-function React(arr, This, This2, str) {
     forEach(dom_data, function (value, key) {
         This = value;
         arr = node_array(dom(document.body, key)[0]);
@@ -196,14 +238,4 @@ function React(arr, This, This2, str) {
         });
     });
 }
-
-function getData(obj, c) { //先用这个，以后换成fn2
-    return obj.replace(/{([^}]+)}/g, function (a, b) { //   
-        if (b && c) {
-            forEach(b.split("."), function (value, key) {
-                c = c[value] || "";
-            });
-        }
-        return c;
-    });
-}
+//事件处理器
