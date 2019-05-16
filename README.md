@@ -1,4 +1,4 @@
 # myFrame 
-# goal：Better and simpler mvvm than vue
-# off the stocks：mould，event
-# compatible:ie5+
+# Goal：Better and simpler mvvm than vue
+# Off the stocks：mould，event
+# Compatible:ie5+
