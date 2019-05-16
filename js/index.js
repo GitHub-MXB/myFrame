@@ -1,3 +1,31 @@
+Vue({
+    el: 'link',
+    data: {
+        href: "https://www.baidu.com",
+        content: "百度一下，你就知道",
+        'class': true,
+        'class2': false,
+        map: {
+            value: 100,
+            fn: function () {
+                return this.content + "abc";
+            }
+        },
+        map2: function () {
+            return this.content + "abc";
+        },
+        Nul: null,
+        arr: [1, 2],
+        html1: "<h1>html</h1>"
+    }
+});
+Vue({
+    el: "el",
+    data: {
+        html2: "<h1>{wap}</h1>",
+        wap: 123
+    }
+});
 ready(function () {
     Ajax("GET", "ajax.txt", "", function (e) {
         console.log(e);
@@ -14,4 +42,6 @@ ready(function () {
         });
     });
     console.timeEnd("time");
+    console.log(JSON.stringify(data_dom));
+    console.log(JSON.stringify(dom_data));
 });
