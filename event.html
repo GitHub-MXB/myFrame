@@ -7,58 +7,47 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <script src="js/js.js"></script>
-    <script src="js/event.js"></script>
     <script>
         ready(function () {
-            event("a").on("mouseover", function (e) {
-                console.log("a mouseover", this);
-            });
-            event("a").on("mouseout", function (e) {
-                console.log("a mouseout", this);
-            });
-
-            dom1 = dom(document, "a")[0];
-            console.log(dom1);
-            console.time("time");
-            a = targetNode(dom1, "a");
-            console.timeEnd("time");
-            console.log(a);
-            // document.body.parentNode
-            // document.attachEvent("onmouseout", function (e) { //attachEvent需要event前面加on
-            //     //event.relatedTarget属性在mouseover中相当于IE浏览器的event.fromElement属性，在mouseout中相当于IE浏览器的event.toElement
-            //     console.log(e, e.toElement);
+            // event("a").on("mouseover", function (e) {
+            //     console.log("a mouseover", e.relatedTarget, e.target);
             // });
+            // event("a").on("mouseout", function (e) {
+            //     console.log("a mouseout", e.relatedTarget, e.target);
+            // });
+            // event("a").on("click", function (e) {
+            //     console.log("a click", e.relatedTarget, e.target);
+            // });
+            event("input").on("focus", function (e) {
+                console.log(this.tagName);
+            });
+            event("input").on("focus", function (e) {
+                console.log(this.nodeType);
+            });
+            dom1 = dom(document, "a")[0];
+            console.time("time");
+            console.timeEnd("time");
             iniEvent();
             console.log(eventAll);
         });
     </script>
     <style>
         .body {
-            height: 500px;
+
             background-color: red;
         }
 
         .a {
+            height: 300px;
             background-color: blue;
-            /* animation: abc 2s 2; */
-        }
-
-        @keyframes abc {
-            0% {
-                width: 100%
-            }
-
-            100% {
-                width: 0%
-            }
         }
     </style>
 </head>
 
 <body class="body">
-    <div>
+    <div class="a">
         <!-- <p class="a">123456</p> -->
-        <input type="text" name="" id="" class="a">
+        <input type="text" name="" id="" class="input">
     </div>
 </body>
 
