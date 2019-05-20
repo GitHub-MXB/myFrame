@@ -70,17 +70,13 @@ textarea {
     //input专属的
     background: none;
     resize: none;
-    *font-family: "Microsoft YaHei";
     font-family: inherit;
+    *font-family: "Microsoft YaHei";
     // caret-color: red;
 
     &:focus {
         outline: 0;
     }
-}
-
-input {
-    padding: 5px;
 }
 
 textarea {
@@ -90,7 +86,6 @@ textarea {
 
 a {
     color: inherit;
-    *color: red;
     text-decoration: none;
 }
 
@@ -104,12 +99,38 @@ a {
 table {
     //table不太好替代
     border-collapse: collapse; //边框是否合并
-    table-layout: fixed;
+    empty-cells: show;
+    text-align: center;
     border-spacing: 0;
+}
+
+tr {
+    z-index: -1;
 }
 
 ul,
 ol {
     padding-left: 35px;
     /*padding-left控制前面的符号,margin-left控制外边距,ie6,7不指定就没符号，其他的只要有margin就有值。使用时，必须padding-left指定，不指定时，换成div更好！*/
+}
+
+//文本
+p,
+span,
+a,
+input,
+textarea {
+    line-height: normal;
+    white-space: nowrap;
+    letter-spacing: normal;
+    text-decoration: none;
+}
+
+button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+}
+
+.hidden {
+    display: none;
 }
