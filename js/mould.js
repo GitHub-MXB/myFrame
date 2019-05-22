@@ -3,7 +3,7 @@
 data = {};
 data_dom = {};
 dom_data = {};
-var domArr = [];
+domArr = [];
 Object.prototype.setData = function (fn) {
     fn.call(this);
     this.setData1(this, this._addr[0]);

@@ -57,7 +57,8 @@ a {
 }
 
 th,
-tr:hover {
+// tr:hover,
+tr:nth-of-type(2n+1) {
     background-color: #f2f2f2;
 }
 

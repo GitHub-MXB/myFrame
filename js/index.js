@@ -37,7 +37,7 @@ ready(function () {
         this.link.setData(function () {
             this.map.value = 50;
             this.map.fn = function () {
-                return this.map.value + 50;
+                return new Date().toLocaleTimeString();
             };
         });
     });
