@@ -86,17 +86,20 @@ function isClass(dom, str) {
     return (" " + dom.className + " ").indexOf(" " + str + "") >= 0;
 }
 
-function forEach(obj, fn, index, key, exit) {
+function forEach(obj, fn, index, key, len, exit) {
     if (obj == undefined) return;
     if (obj.length >= 0) {
         for (key = index || 0, len = obj.length; key < len; key++) {
-            exit = fn.call(obj, obj[key], key);
+            fn.call(obj, obj[key], key);
+            // exit = fn.call(obj, obj[key], key);
             if (exit != undefined) {
+                console.log(exit);
                 return exit;
             }
         }
-
-    } else {
+        return;
+    }
+    if (typeof obj == "object") {
         for (key in obj) {
             if (obj.hasOwnProperty(key)) {
                 fn.call(obj, obj[key], key);

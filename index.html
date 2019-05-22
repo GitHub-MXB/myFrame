@@ -7,7 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <link rel="stylesheet" href="css/index.min.css">
-
+    <script src="js/base.js"></script>
+    <script src="js/mould.js"></script>
+    <script src="js/index.js"></script>
     <!--[if lt IE 9]>
 <script src="js/nwmatcher.js"></script>
     <script src="js/selectivizr.js"></script>
@@ -16,18 +18,16 @@
 </head>
 
 <body>
-    <a href="{href}" id="link" value="{map.value}" class="link {class2}">{content}<br> {map.fn}
+    <a href="{href}" id="link" value="{map.value}123" class="link {class2}">{content}<br class="a"> {map.fn}
         <span class="span">
-            <p>123 <span>456</span></p>
+            <span>123 <span>456</span></span>
         </span>1
         <span>2</span>
+        <span for="{key,value in obj.a}">
+            {content}123
+        </span>
     </a>
-    <div for="a in b">
-
-    </div>
 </body>
-<script src="js/base.js"></script>
-<script src="js/mould.js"></script>
-<script src="js/index.js"></script>
+
 
 </html>

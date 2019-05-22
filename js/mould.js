@@ -1,21 +1,21 @@
 //框架主体
 //用时，即赋值时就完成处理，赋值一次只处理一个，不要取的时候处理
-data = {};
-data_dom = {};
-dom_data = {};
-domArr = [];
+var data = {};
+var data_dom = {};
+var dom_data = {};
+var update_list = [];
 Object.prototype.setData = function (fn) {
     fn.call(this);
-    this.setData1(this, this._addr[0]);
-    domArr.push(this);
+    this.data_type(this, this._addr[0]);
+    update_list.push(this);
 };
-Object.prototype.setData1 = function (value, addr, _addr) {
+Object.prototype.data_type = function (value, addr, _addr) {
     _addr = this;
     forEach(value, function (value, key) {
         if (String(key).charAt(0) == "_") {
             return;
         }
-        if (value === null) {
+        if (value === null || undefined) {
             addr[key] = "";
             return;
         }
@@ -26,7 +26,7 @@ Object.prototype.setData1 = function (value, addr, _addr) {
                     break;
                 }
                 addr[key] = {};
-                this.setData1(value, addr[key]);
+                this.data_type(value, addr[key]);
                 break;
             case "boolean":
                 addr[key] = value ? key : "";
@@ -49,83 +49,67 @@ function Vue(obj) { //创建初始数据
     setData(function () {});
 }
 
-function setData(fn, data_dom, dom_data, dom, attr, text, str) { //设置值到dom
+function setData(fn, data_dom, dom_data, arr, dom, attr, text, str1, str2) { //设置值到dom
     fn.call(data);
-    forEach(domArr, function (value, key) { //这里更新dom，即domArr
+    forEach(update_list, function (value, key) { //这里更新dom，即update_list
         data_dom = value._addr[0];
-        dom_data = value._addr[1];
-        dom = window.dom(document.body, value._addr[2])[0];
-        forEach(dom_data, function (value, key) {
+        arr = node_array(window.dom(document.body, value._addr[2])[0], []);
+        forEach(value._addr[1], function (value, key, loop, arr) {
+            dom = arr[key];
             attr = dom.attributes;
             text = dom.childNodes;
             forEach(value.attr, function (value, key) {
-                str = getData(value, data_dom);
-                if (attr[key].nodeValue != str) {
-                    attr[key].nodeValue = str;
-                }
+                attr[key].nodeValue = getData(value, data_dom);
             });
             forEach(value.text, function (value, key) {
-                str = getData(value, data_dom);
-                if (text[key].nodeValue != str) {
-                    text[key].nodeValue = str;
-                }
+                text[key].nodeValue = getData(value, data_dom);
             });
-            str = value['class'];
-            if (str) {
-                str = getData(str, data_dom);
-                if (dom.className != str) {
-                    dom.className = str;
-                }
-            }
+            loop = value['for'];
+            if (loop) {}
         });
     });
-    domArr = [];
+    update_list = [];
 }
 
-function getData(obj, c) { //将a.b这种的替换成实际值
-    return obj.replace(/{([^}]+)}/g, function (a, b) { //   
-        if (b && c) {
-            forEach(b.split("."), function (value, key) {
-                c = c[value] || "";
+function getData(str, obj) { //将a.b这种的替换成实际值
+    str = str.replace(/{([^}]+)}/g, function (a, str) { //加一个判断是否
+        if (str && obj) {
+            forEach(str.split("."), function (value, key) {
+                obj = obj[value] || "";
             });
         }
-        return c;
+        return obj;
     });
+    return str;
+}
+
+function node_array(dom, arr) { //获取节点的数组
+    if (!dom)
+        return;
+    arr = [dom];
+    forEach(dom.getElementsByTagName("*"), function (value, key) {
+        arr.push(value);
+    });
+    return arr;
 }
 
 function React(arr, This, This2, str) { //获取dom的信息
-    function node_array(dom, arr) { //获取节点的数组
-        function allNode(node, arr) {
-            if (node.attributes.mould) {
-                return;
-            }
-            forEach(node.children, function (value, key) {
-                arr.push(value);
-                allNode(value, arr);
-            });
-        }
-        if (!dom)
-            return;
-        arr = [dom];
-        allNode(dom, arr);
-        return arr;
-    }
-    forEach(dom_data, function (value, key) {
+    var i = 0;
+    forEach(dom_data, function (value, key, arr) {
         This = value;
-        arr = node_array(dom(document.body, key)[0]);
-        forEach(arr, function (value, key) {
+        forEach(node_array(dom(document.body, key)[0]), function (value, key, str) {
             This[key] = {};
             This2 = This[key];
             This2.attr = {};
+            This2.text = {};
             forEach(value.attributes, function (value, key) {
-                // value.nodeValue;
-                //遍历完，转移class和mould
+                //value.nodeValue;
+                //遍历完， 转移class和mould
                 str = value.nodeValue + ""; //ie迷之错误,||出错
                 if (str.indexOf("{") >= 0) {
                     This2.attr[value.nodeName] = str;
                 }
             });
-            This2.text = {};
             forEach(value.childNodes, function (value, key) {
                 if (value.nodeType == 3) {
                     str = value.nodeValue + "";
@@ -134,15 +118,15 @@ function React(arr, This, This2, str) { //获取dom的信息
                     }
                 }
             });
-            str = This2.attr['class'];
-            if (str) {
-                This2['class'] = str;
-                delete This2.attr['class'];
-            }
             str = This2.attr.mould;
             if (str) {
                 This2.mould = str;
                 delete This2.attr.mould;
+            }
+            str = This2.attr['for'];
+            if (str) {
+                This2['for'] = str;
+                delete This2.attr['for'];
             }
         });
     });

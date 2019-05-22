@@ -1,10 +1,10 @@
 Vue({
     el: 'link',
     data: {
-        href: "https://www.baidu.com",
+        href: "http://www.baidu.com",
         content: "百度一下，你就知道",
         'class': true,
-        'class2': false,
+        'class2': true,
         map: {
             value: 100,
             fn: function () {
@@ -27,11 +27,10 @@ Vue({
     }
 });
 ready(function () {
-    Ajax("GET", "ajax.txt", "", function (e) {
-        console.log(e);
-    });
+    // Ajax("GET", "ajax.txt", "", function (e) {
+    //     console.log(e);
+    // });
     console.log(data, data_dom, dom_data);
-    console.time("time");
     React();
     setData(function () { //用户的操作写这里
         this.link.setData(function () {
@@ -41,7 +40,4 @@ ready(function () {
             };
         });
     });
-    console.timeEnd("time");
-    console.log(JSON.stringify(data_dom));
-    console.log(JSON.stringify(dom_data));
 });
