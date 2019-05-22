@@ -54,7 +54,7 @@ function setData(fn, data_dom, dom_data, arr, dom, attr, text, str1, str2) { //�
     forEach(update_list, function (value, key) { //这里更新dom，即update_list
         data_dom = value._addr[0];
         arr = node_array(window.dom(document.body, value._addr[2])[0], []);
-        forEach(value._addr[1], function (value, key, loop, arr) {
+        forEach(value._addr[1], function (value, key) {
             dom = arr[key];
             attr = dom.attributes;
             text = dom.childNodes;
@@ -64,8 +64,7 @@ function setData(fn, data_dom, dom_data, arr, dom, attr, text, str1, str2) { //�
             forEach(value.text, function (value, key) {
                 text[key].nodeValue = getData(value, data_dom);
             });
-            loop = value['for'];
-            if (loop) {}
+            console.log(value['for']);
         });
     });
     update_list = [];
