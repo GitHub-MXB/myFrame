@@ -58,20 +58,16 @@ function updata(node, dom_data, data_dom, attr, text) {
     forEach(dom_data.text, function (value, key) {
         text[key].nodeValue = getData(value, data_dom);
     });
-
 }
 
-function setData(fn, data_dom, arr, dom) { //设置值到dom
+function setData(fn, data_dom, arr) { //设置值到dom
     fn.call(data);
     forEach(update_list, function (value, key) { //这里更新dom，即update_list
         data_dom = value._addr[0];
-        console.log(value._addr[1]);
-        arr = node_array(window.dom(document.body, value._addr[2])[0], []);
-        console.time("updata");
+        arr = node_array(dom(document.body, value._addr[2])[0], []);
         forEach(value._addr[1], function (value, key) {
             updata(arr[key], value, data_dom);
         });
-        console.timeEnd("updata");
     });
     update_list = [];
 }
@@ -102,40 +98,73 @@ function node_array(dom, arr) { //获取节点的数组
     return arr;
 }
 
-function React(arr, This, This2, str) { //获取dom的信息
-    forEach(dom_data, function (value, key, arr) {
-        This = value;
-        forEach(node_array(dom(document.body, key)[0]), function (value, key, str) {
-            This[key] = {};
-            This2 = This[key];
-            This2.attr = {};
-            This2.text = {};
-            forEach(value.attributes, function (value, key) {
-                //value.nodeValue;
-                //遍历完， 转移class和mould
-                str = value.nodeValue + ""; //ie迷之错误,||出错
-                if (str.indexOf("{") >= 0) {
-                    This2.attr[value.nodeName] = str;
-                }
-            });
-            forEach(value.childNodes, function (value, key) {
-                if (value.nodeType == 3) {
-                    str = value.nodeValue + "";
-                    if (str.indexOf("{") >= 0) {
-                        This2.text[key] = str;
-                    }
-                }
-            });
-            str = This2.attr.mould;
-            if (str) {
-                This2.mould = str;
-                delete This2.attr.mould;
-            }
-            str = This2.attr['for'];
-            if (str) {
-                This2['for'] = str;
-                delete This2.attr['for'];
-            }
-        });
+function AST(data_node, array, node) {
+    forEach(data, function (value, key) {
+        data_node.push(key);
     });
+    forEach(data_node, function (value, key) { //这个可以提前生成
+        node = dom(document.body, value)[0];
+        ast(node, array, 0, node);
+    });
+
+}
+
+function AST2(data_node, ast_arr, array) {
+    forEach(data_node, function (value, key) { //这个可以提前生成
+        node = dom(document.body, value)[0];
+        array.push([]);
+        ast2(ast_arr[key], node, array[key]);
+    });
+}
+
+function ast(node, array, index, end, obj, str_for) { //保存key与value的值，将来可优化，只保存node不能
+    if (!node || node.nodeType != 1) return;
+    obj = {};
+    obj.addr = index; //仅这一个是动态的，json生成的是obj.addr = index;这个值避免地址是mould
+    obj.len = 1;
+    obj.attr = {};
+    obj.text = {};
+    obj.child = [];
+    obj.data = {};
+    forEach(node.attributes, function (value, key) {
+        str = value.nodeValue + ""; //ie迷之错误,||出错
+        if (str.indexOf("{") >= 0) {
+            obj.attr[value.nodeName] = str;
+        }
+    });
+    str_for = node.getAttribute('for');
+    if (str_for) {
+        obj['for'] = str_for;
+    }
+    forEach(node.childNodes, function (value, key) {
+        if (value.nodeType == 3) {
+            str = value.nodeValue + "";
+            if (str.indexOf("{") >= 0) {
+                obj.text[key] = str;
+            }
+        }
+        if (value.nodeType == 1) {
+            ast(value, obj.child, key);
+        }
+    });
+    array.push(obj);
+    if (node == end)
+        ast(node.nextSibling, array);
+}
+
+function ast2(ast_arr, node, array, child) {
+    if (!ast_arr) return;
+    ast_arr.addr = node;
+    if (ast_arr['for']) {
+        array[0].unshift(ast_arr);
+    }
+    if (ast_arr.child.length) {
+        child = node.childNodes;
+        forEach(ast_arr.child, function (value, key) {
+            ast2(value, child[value.addr], array);
+        });
+    } else {
+        if (array.length == 0 || array[0].length)
+            array.unshift([]);
+    }
 }

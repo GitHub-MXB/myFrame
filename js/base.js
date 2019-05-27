@@ -29,7 +29,7 @@ function Ajax(method, url, data, fun) { //不管跨域，可优化
     xhr.send(data);
     xhr.onreadystatechange = function () { //异步获取的
         if (xhr.readyState == 4 && xhr.status == 200) {
-            fun(xhr.responseText);
+            fun(xhr);
         }
     };
 }
@@ -90,10 +90,9 @@ function forEach(obj, fn, index, key, len, exit) {
     if (obj == undefined) return;
     if (obj.length >= 0) {
         for (key = index || 0, len = obj.length; key < len; key++) {
-            fn.call(obj, obj[key], key);
-            // exit = fn.call(obj, obj[key], key);
+            // fn.call(obj, obj[key], key);
+            exit = fn.call(obj, obj[key], key);
             if (exit != undefined) {
-                console.log(exit);
                 return exit;
             }
         }
@@ -102,7 +101,10 @@ function forEach(obj, fn, index, key, len, exit) {
     if (typeof obj == "object") {
         for (key in obj) {
             if (obj.hasOwnProperty(key)) {
-                fn.call(obj, obj[key], key);
+                exit = fn.call(obj, obj[key], key);
+                if (exit != undefined) {
+                    return exit;
+                }
             }
         }
     }

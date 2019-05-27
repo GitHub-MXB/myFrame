@@ -4,7 +4,12 @@ Vue({
         href: "http://www.baidu.com",
         content: "百度一下，你就知道",
         'class': true,
-        'class2': true,
+        bool: true,
+        'class2': function () {
+            if (!this.bool) {
+                return "hidden";
+            }
+        },
         map: {
             value: 100,
             fn: function () {
@@ -15,7 +20,7 @@ Vue({
             return this.content + "abc";
         },
         Nul: null,
-        arr: [1, 2],
+        arr: ['a', 'b', 'c', 'd'],
         html1: "<h1>html</h1>"
     }
 });
@@ -27,11 +32,20 @@ Vue({
     }
 });
 ready(function () {
-    // Ajax("GET", "ajax.txt", "", function (e) {
-    //     console.log(e);
-    // });
+    var ast_arr = [];
+    var for_arr = [];
+    var data_node = [];
+    Ajax("GET", "img/download.jpg", "", function (e) {
+        console.log(e);
+    });
     console.log(data, data_dom, dom_data);
-    React();
+    console.time("time");
+    // React();
+    AST(data_node, ast_arr);
+    AST2(data_node, ast_arr, for_arr, data_node);
+    console.timeEnd("time");
+    // console.log(JSON.stringify(ast_arr));
+    console.log(ast_arr, for_arr);
     setData(function () { //用户的操作写这里
         this.link.setData(function () {
             this.map.value = 50;

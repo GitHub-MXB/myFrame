@@ -5,10 +5,21 @@
     background-color: blue;
     color: #fff;
     padding: 10px 20px;
-    width: 400px;
+    width: 80%;
     height: 80px;
     border-radius: 20px;
-    behavior: url(ie-css3.htc);
+}
+
+@media \0screen\,screen\9 {
+
+    //仅ie9-支持
+    .link {
+        behavior: url(ie-css3.htc);
+    }
+
+    body {
+        background: green;
+    }
 }
 
 span:hover {
