@@ -84,8 +84,8 @@ function str_obj(str, obj) { //字符转对象
         forEach(str.split("."), function (value, key) {
             obj = obj[value] || "";
         });
+        return obj;
     }
-    return obj;
 }
 
 function node_array(dom, arr) { //获取节点的数组
@@ -152,11 +152,12 @@ function ast(node, array, index, end, obj, str_for) { //保存key与value的值�
         ast(node.nextSibling, array);
 }
 
-function ast2(ast_arr, node, array, child) {
+function ast2(ast_arr, node, array, child, len) {
+    len = array.length - 1;
     if (!ast_arr) return;
     ast_arr.addr = node;
     if (ast_arr['for']) {
-        array[0].unshift(ast_arr);
+        array[len].push(ast_arr);
     }
     if (ast_arr.child.length) {
         child = node.childNodes;
@@ -164,7 +165,35 @@ function ast2(ast_arr, node, array, child) {
             ast2(value, child[value.addr], array);
         });
     } else {
-        if (array.length == 0 || array[0].length)
-            array.unshift([]);
+        array.push([]);
     }
+}
+
+function AST3(array, arr1, arr2, arr3) {
+    arr1 = [];
+    forEach(array, function (value, key) {
+        arr2 = [];
+        forEach(value, function (value, key) {
+            arr3 = [];
+            forEach(value, function (value, key) {
+                arr3.push(ast_for_str(value['for']));
+            });
+            arr2.push(arr3);
+        });
+        arr1.push(arr2);
+    });
+    return arr1;
+}
+
+function ast_for_str(str, arr) {
+    arr = str.split(" in ");
+    arr.push(arr[0].split(","));
+    arr[0] = {};
+    arr[0][arr[2][0]] = 0;
+    arr[0][arr[2][1]] = 0;
+    return arr;
+}
+
+function React() { //更新dom
+
 }
