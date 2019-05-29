@@ -32,31 +32,17 @@ Vue({
     }
 });
 ready(function () {
-    var ast_arr = []; //ast树
+    // var dom_data = {}; //ast树
     // var ast_arr_each = [];
-    var ast_for = []; //ast的for树
-    var data_node = []; //data的节点名字，防止顺序出问题
-    var ast_for_arr = [];
-    var obj = {
-        a: 0,
-        b: 1
-    };
     Ajax("GET", "img/download.jpg", "", function (e) {
         console.log(e);
     });
     console.log(data, data_dom, dom_data);
     console.time("time");
     // React();
-    AST(data_node, ast_arr); //得到ast树
-    AST2(data_node, ast_arr, ast_for); //得到for的ast树
-    // ast_for_arr = AST3(ast_for);
-    forEach(obj, function (value, key) {
-        this[key] = 10;
-    });
+    AST(data, dom_data); //得到ast树    注：for只能用在子标示上
     console.timeEnd("time");
-    // console.log(JSON.stringify(ast_arr));
-    console.log(ast_arr, ast_for, data_node, ast_for_arr);
-    setData(function () { //用户的操作写这里
+    setData(function () { //用户的操作写这里       1、需要对单个值的设置优化
         this.link.setData(function () {
             this.map.value = 50;
             this.map.fn = function () {
@@ -64,4 +50,5 @@ ready(function () {
             };
         });
     });
+
 });

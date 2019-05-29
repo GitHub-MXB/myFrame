@@ -15,7 +15,7 @@ Object.prototype.data_type = function (value, addr, _addr) {
         if (String(key).charAt(0) == "_") {
             return;
         }
-        if (value === null || undefined) {
+        if (value == null || undefined) {
             addr[key] = "";
             return;
         }
@@ -32,7 +32,7 @@ Object.prototype.data_type = function (value, addr, _addr) {
                 addr[key] = value ? key : "";
                 break;
             case "function":
-                addr[key] = value.call(_addr);
+                addr[key] = value.call(_addr) || "";
                 break;
             default:
                 addr[key] = value;
@@ -44,30 +44,74 @@ Object.prototype.data_type = function (value, addr, _addr) {
 function Vue(obj) { //创建初始数据
     data[obj.el] = obj.data;
     data_dom[obj.el] = {};
-    dom_data[obj.el] = dom_data[obj.el] || {};
-    data[obj.el]._addr = [data_dom[obj.el], dom_data[obj.el], obj.el];
+    data[obj.el]._addr = [data_dom[obj.el], obj.el];
     setData(function () {});
 }
 
-function updata(node, dom_data, data_dom, attr, text) {
-    attr = node.attributes;
-    text = node.childNodes;
-    forEach(dom_data.attr, function (value, key) {
-        attr[key].nodeValue = getData(value, data_dom);
+function updata(node, data, attr, text) { //更新数据
+    attr = node.addr.attributes;
+    text = node.addr.childNodes;
+    forEach(node.attr, function (value, key) {
+        attr[key].nodeValue = getData(value, data);
     });
-    forEach(dom_data.text, function (value, key) {
-        text[key].nodeValue = getData(value, data_dom);
+    forEach(node.text, function (value, key) {
+        text[key].nodeValue = getData(value, data);
     });
 }
 
-function setData(fn, data_dom, arr) { //设置值到dom
+function ast_for_str(str, arr) { // for转具体值
+    if (!str) return;
+    arr = str.split(" in ");
+    arr.push(arr[0].split(","));
+    arr[0] = {};
+    arr[0][arr[2][0]] = 0;
+    arr[0][arr[2][1]] = 0;
+    return arr;
+}
+
+function setNode(node, data, arr, stack, arr1) { //更新dom    ast_arr,需要的data_dom
+    if (!node) return;
+    updata(node, data);
+    arr = ast_for_str(node['for']);
+    stack = stack || [
+        [{}, {}, {}]
+    ]; //虚拟堆
+    var theory = 0; //理论个数
+    var fact = node.len; //实际个数
+    var remove;
+    if (arr) {
+        arr[1] = str_obj(arr[1], data);
+        stack.unshift(arr);
+        console.log(arr, stack);
+
+        theory = arr[1].length;
+        remove = theory - fact;
+        if (remove >= 1) {
+            var dom = document.createDocumentFragment();
+            var replace_node;
+            forEach(3, function (value, key) {
+                dom.appendChild(node.addr.cloneNode(true));
+                replace_node = dom.firstChild;
+            });
+        }
+    } else {
+
+    }
+    forEach(node.child, function (value, key) {
+        setNode(value, data, arr, stack);
+    });
+}
+
+function setData(fn, data_dom, arr, node) { //设置值到dom
     fn.call(data);
     forEach(update_list, function (value, key) { //这里更新dom，即update_list
         data_dom = value._addr[0];
+        node = dom_data[value._addr[1]];
+        console.log(data_dom, node);
         arr = node_array(dom(document.body, value._addr[2])[0], []);
-        forEach(value._addr[1], function (value, key) {
-            updata(arr[key], value, data_dom);
-        });
+        console.time();
+        setNode(node, data_dom);
+        console.timeEnd();
     });
     update_list = [];
 }
@@ -98,29 +142,20 @@ function node_array(dom, arr) { //获取节点的数组
     return arr;
 }
 
-function AST(data_node, array, node) {
-    forEach(data, function (value, key) {
-        data_node.push(key);
-    });
-    forEach(data_node, function (value, key) { //这个可以提前生成
-        node = dom(document.body, value)[0];
-        ast(node, array, 0, node);
-    });
-
-}
-
-function AST2(data_node, ast_arr, array) {
-    forEach(data_node, function (value, key) { //这个可以提前生成
-        node = dom(document.body, value)[0];
-        array.push([]);
-        ast2(ast_arr[key], node, array[key]);
+function AST(data, obj, node) {
+    forEach(data, function (value, key) { //这个可以提前生成,加个index即可
+        node = dom(document.body, key)[0];
+        ast(node, obj, key);
     });
 }
 
-function ast(node, array, index, end, obj, str_for) { //保存key与value的值，将来可优化，只保存node不能
+function ast(node, array, key, obj, str_for) { //保存key与value的值，将来可优化，只保存node不能
     if (!node || node.nodeType != 1) return;
+    if (node.getAttribute('for_li')) { //所有for的循环体添加for_li
+        return this.len++;
+    }
     obj = {};
-    obj.addr = index; //仅这一个是动态的，json生成的是obj.addr = index;这个值避免地址是mould
+    obj.addr = node; //仅这一个是动态的,可优化
     obj.len = 1;
     obj.attr = {};
     obj.text = {};
@@ -144,56 +179,13 @@ function ast(node, array, index, end, obj, str_for) { //保存key与value的值�
             }
         }
         if (value.nodeType == 1) {
-            ast(value, obj.child, key);
+            ast.call(obj, value, obj.child, "");
         }
     });
-    array.push(obj);
-    if (node == end)
-        ast(node.nextSibling, array);
-}
-
-function ast2(ast_arr, node, array, child, len) {
-    len = array.length - 1;
-    if (!ast_arr) return;
-    ast_arr.addr = node;
-    if (ast_arr['for']) {
-        array[len].push(ast_arr);
-    }
-    if (ast_arr.child.length) {
-        child = node.childNodes;
-        forEach(ast_arr.child, function (value, key) {
-            ast2(value, child[value.addr], array);
-        });
+    if (array instanceof Array) {
+        array.push(obj);
     } else {
-        array.push([]);
+        ast.call(obj, node.nextSibling, array, "");
+        array[key] = obj;
     }
-}
-
-function AST3(array, arr1, arr2, arr3) {
-    arr1 = [];
-    forEach(array, function (value, key) {
-        arr2 = [];
-        forEach(value, function (value, key) {
-            arr3 = [];
-            forEach(value, function (value, key) {
-                arr3.push(ast_for_str(value['for']));
-            });
-            arr2.push(arr3);
-        });
-        arr1.push(arr2);
-    });
-    return arr1;
-}
-
-function ast_for_str(str, arr) {
-    arr = str.split(" in ");
-    arr.push(arr[0].split(","));
-    arr[0] = {};
-    arr[0][arr[2][0]] = 0;
-    arr[0][arr[2][1]] = 0;
-    return arr;
-}
-
-function React() { //更新dom
-
 }

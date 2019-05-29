@@ -88,9 +88,8 @@ function isClass(dom, str) {
 
 function forEach(obj, fn, index, key, len, exit) {
     if (obj == undefined) return;
-    if (obj.length >= 0) {
-        for (key = index || 0, len = obj.length; key < len; key++) {
-            // fn.call(obj, obj[key], key);
+    if (obj.length >= 0 || typeof obj == "number") {
+        for (key = index || 0, len = obj.length || obj; key < len; key++) {
             exit = fn.call(obj, obj[key], key);
             if (exit != undefined) {
                 return exit;
