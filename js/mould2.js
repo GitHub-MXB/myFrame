@@ -16,7 +16,7 @@ Object.prototype.data_type = function (value, addr, _addr) {
             return;
         }
         if (value == null || undefined) {
-            addr[key] = "";
+            addr[key] = " ";
             return;
         }
         switch (typeof value) {
@@ -29,10 +29,10 @@ Object.prototype.data_type = function (value, addr, _addr) {
                 this.data_type(value, addr[key]);
                 break;
             case "boolean":
-                addr[key] = value ? key : "";
+                addr[key] = value ? key : " ";
                 break;
             case "function":
-                addr[key] = value.call(_addr) || "";
+                addr[key] = value.call(_addr) || " ";
                 break;
             default:
                 addr[key] = value;
@@ -69,37 +69,46 @@ function ast_for_str(str, arr) { // for转具体值
     return arr;
 }
 
-function setNode(node, data, arr, stack, arr1) { //更新dom    ast_arr,需要的data_dom
+function setNode(node, data, stack, bool) { //更新dom    ast_arr,需要的data_dom
     if (!node) return;
     updata(node, data);
-    arr = ast_for_str(node['for']);
-    stack = stack || [
-        [{}, {}, {}]
-    ]; //虚拟堆
+    bool = ast_for_str(node['for']); //虚拟堆
+    stack = bool ? bool : stack;
     var theory = 0; //理论个数
     var fact = node.len; //实际个数
     var remove;
-    if (arr) {
-        arr[1] = str_obj(arr[1], data);
-        stack.unshift(arr);
-        console.log(arr, stack);
-
-        theory = arr[1].length;
+    console.log(stack);
+    if (bool) {
+        stack[1] = str_obj(stack[1], data);
+        theory = stack[1].length;
         remove = theory - fact;
         if (remove >= 1) {
+            forEach(node.child, function (value, key) {
+                setNode(value, data, stack);
+            });
             var dom = document.createDocumentFragment();
             var replace_node;
-            forEach(3, function (value, key) {
+            forEach(4, function (value, key) {
                 dom.appendChild(node.addr.cloneNode(true));
-                replace_node = dom.firstChild;
+            });
+            replace_node = dom.firstChild;
+            node.addr.parentNode.replaceChild(dom, node.addr);
+            node.addr = replace_node;
+        }
+        if (remove <= -1) {
+            forEach(-remove, function (value, key) {
+                dom.removeChild();
             });
         }
     } else {
-
+        forEach(node.child, function (value, key) {
+            setNode(value, data, stack);
+        });
     }
-    forEach(node.child, function (value, key) {
-        setNode(value, data, arr, stack);
-    });
+}
+
+function setNode_for() {
+
 }
 
 function setData(fn, data_dom, arr, node) { //设置值到dom
@@ -126,7 +135,7 @@ function getData(str, obj) { //将{模板}提取并替换
 function str_obj(str, obj) { //字符转对象
     if (str && obj) {
         forEach(str.split("."), function (value, key) {
-            obj = obj[value] || "";
+            obj = obj[value] || " ";
         });
         return obj;
     }

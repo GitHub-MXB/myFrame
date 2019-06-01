@@ -83,7 +83,7 @@ function dom(dom, cls) {
 }
 
 function isClass(dom, str) {
-    return (" " + dom.className + " ").indexOf(" " + str + "") >= 0;
+    return (" " + dom.className + " ").indexOf(" " + str + " ") >= 0;
 }
 
 function forEach(obj, fn, index, key, len, exit) {
