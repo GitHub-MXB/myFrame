@@ -1,6 +1,10 @@
 //通用
+var old_browser = !document.getElementsByClassName;
+var new_browser = !old_browser;
+console.log("new_browser:", new_browser);
+
 function ready(fn) {
-    if (document.addEventListener) {
+    if (new_browser) {
         document.addEventListener("DOMContentLoaded", function () {
             document.removeEventListener("DOMContentLoaded", arguments.callee, false);
             fn();
@@ -15,7 +19,7 @@ function ready(fn) {
     }
 }
 
-function Ajax(method, url, data, fun) { //不管跨域，可优化
+function Ajax(method, url, data, fun, xhr) { //不管跨域，可优化
     if (window.XMLHttpRequest) {
         xhr = new XMLHttpRequest();
     } else {
@@ -57,54 +61,75 @@ var dom_extend = {
         }
     }
 };
-if (window.HTMLElement) {
-    forEach(window.dom_extend, function (value, key) {
+if (new_browser) {
+    forEach(dom_extend, function (value, key) {
         HTMLElement.prototype[key] = value;
     });
 }
 
-function dom(dom, cls) {
-    function dom_extend_fn(dom) {
-        forEach(window.dom_extend, function (value, key) {
-            dom[key] = value;
-        });
-        return dom;
-    }
-    if (dom.getElementsByClassName)
-        return dom.getElementsByClassName(cls);
-    var ret = [];
-    forEach(dom.getElementsByTagName('*'), function (value, index) {
+function dom(node, cls) {
+    return node_filter(getElements(node), cls);
+}
+
+function dom_extend_fn(node) { //ie9-添加原型函数
+    forEach(dom_extend, function (value, key) {
+        node[key] = value;
+    });
+    return node;
+}
+
+function node_filter(node_arr, cls, array) {
+    array = [];
+    forEach(node_arr, function (value, index) {
         if (isClass(value, cls)) {
-            dom_extend_fn(value);
-            ret.push(value);
+            array.push(value);
         }
     });
-    return ret;
+    return array;
 }
 
-function isClass(dom, str) {
-    return (" " + dom.className + " ").indexOf(" " + str + " ") >= 0;
+function getElements(node, array) {
+    array = [node]; //[ret]迷之错误
+    forEach(node.getElementsByTagName('*'), function (value, key) {
+        if (old_browser)
+            dom_extend_fn(value);
+        array.push(value);
+    });
+    return array;
 }
 
-function forEach(obj, fn, index, key, len, exit) {
-    if (obj == undefined) return;
-    if (obj.length >= 0 || typeof obj == "number") {
-        for (key = index || 0, len = obj.length || obj; key < len; key++) {
-            exit = fn.call(obj, obj[key], key);
+function isClass(node, str) {
+    return (" " + node.className + " ").indexOf(" " + str + " ") >= 0;
+}
+
+function forEach(object, fn, index, key, len, exit) {
+    if (object == undefined) return;
+    if (object.length >= 0 || typeof object == "number") {
+        for (key = index || 0, len = object.length || object; key < len; key++) {
+            exit = fn.call(object, object[key], key);
             if (exit != undefined) {
                 return exit;
             }
         }
         return;
     }
-    if (typeof obj == "object") {
-        for (key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                exit = fn.call(obj, obj[key], key);
+    if (typeof object == "object") {
+        for (key in object) {
+            if (object.hasOwnProperty(key)) {
+                exit = fn.call(object, object[key], key);
                 if (exit != undefined) {
                     return exit;
                 }
             }
         }
     }
+}
+if (old_browser) {
+    Array.prototype.indexOf = function (object) {
+        return forEach(this, function (value, key) {
+            if (value == object) {
+                return key;
+            }
+        });
+    };
 }

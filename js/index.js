@@ -37,11 +37,14 @@ ready(function () {
     Ajax("GET", "img/download.jpg", "", function (e) {
         console.log(e);
     });
-    console.log(data, data_dom, dom_data);
-    console.time("time");
+    console.log(data, data_dom, dom_data, eventAll);
+    console.time("AST Time");
     // React();
     AST(data, dom_data); //得到ast树    注：for只能用在子标示上
-    console.timeEnd("time");
+    console.timeEnd("AST Time");
+    event("link").on("mouseover", function (e, obj) {
+        console.log(this, obj);
+    });
     setData(function () { //用户的操作写这里       1、需要对单个值的设置优化
         this.link.setData(function () {
             this.map.value = 50;
@@ -50,5 +53,5 @@ ready(function () {
             };
         });
     });
-
+    iniEvent();
 });

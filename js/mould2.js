@@ -77,7 +77,6 @@ function setNode(node, data, stack, bool) { //更新dom    ast_arr,需要的data
     var theory = 0; //理论个数
     var fact = node.len; //实际个数
     var remove;
-    console.log(stack);
     if (bool) {
         stack[1] = str_obj(stack[1], data);
         theory = stack[1].length;
@@ -86,18 +85,18 @@ function setNode(node, data, stack, bool) { //更新dom    ast_arr,需要的data
             forEach(node.child, function (value, key) {
                 setNode(value, data, stack);
             });
-            var dom = document.createDocumentFragment();
+            var node_fragment = document.createDocumentFragment();
             var replace_node;
             forEach(4, function (value, key) {
-                dom.appendChild(node.addr.cloneNode(true));
+                node_fragment.appendChild(node.addr.cloneNode(true));
             });
-            replace_node = dom.firstChild;
-            node.addr.parentNode.replaceChild(dom, node.addr);
+            replace_node = node_fragment.firstChild;
+            node.addr.parentNode.replaceChild(node_fragment, node.addr);
             node.addr = replace_node;
         }
         if (remove <= -1) {
             forEach(-remove, function (value, key) {
-                dom.removeChild();
+                node_fragment.removeChild();
             });
         }
     } else {
@@ -141,11 +140,11 @@ function str_obj(str, obj) { //字符转对象
     }
 }
 
-function node_array(dom, arr) { //获取节点的数组
-    if (!dom)
+function node_array(node, arr) { //获取节点的数组
+    if (!node)
         return;
-    arr = [dom];
-    forEach(dom.getElementsByTagName("*"), function (value, key) {
+    arr = [node];
+    forEach(node.getElementsByTagName("*"), function (value, key) {
         arr.push(value);
     });
     return arr;
@@ -154,17 +153,19 @@ function node_array(dom, arr) { //获取节点的数组
 function AST(data, obj, node) {
     forEach(data, function (value, key) { //这个可以提前生成,加个index即可
         node = dom(document.body, key)[0];
-        ast(node, obj, key);
+        ast(node, obj, key, node);
     });
 }
 
-function ast(node, array, key, obj, str_for) { //保存key与value的值，将来可优化，只保存node不能
+function ast(node, array, key, parent, obj, str_for, str) { //保存key与value的值，将来可优化，只保存node不能
     if (!node || node.nodeType != 1) return;
     if (node.getAttribute('for_li')) { //所有for的循环体添加for_li
         return this.len++;
     }
     obj = {};
+    node.obj = obj;
     obj.addr = node; //仅这一个是动态的,可优化
+    obj.parent = node;
     obj.len = 1;
     obj.attr = {};
     obj.text = {};
@@ -188,13 +189,13 @@ function ast(node, array, key, obj, str_for) { //保存key与value的值，将�
             }
         }
         if (value.nodeType == 1) {
-            ast.call(obj, value, obj.child, "");
+            ast.call(obj, value, obj.child, "", parent);
         }
     });
-    if (array instanceof Array) {
+    if (array instanceof Array) { //是child
         array.push(obj);
     } else {
-        ast.call(obj, node.nextSibling, array, "");
+        ast.call(obj, node.nextSibling, array, "", parent);
         array[key] = obj;
     }
 }

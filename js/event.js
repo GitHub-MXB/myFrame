@@ -14,21 +14,21 @@ String.prototype.on = function (event, fn) {
     }
 };
 
-function iniEvent(addEventListener) {
-    addEventListener = !document.addEventListener;
+function iniEvent(int_key, int_value) {
     document.addEventListener = document.addEventListener || document.attachEvent;
-    forEach(eventAll, function (value, key, This) {
-        if (addEventListener) {
+    forEach(eventAll, function (value, key, This, relatedTarget) {
+        if (old_browser) {
             key = "on" + key; //attachEvent需要event前面加on
         }
-        if (document.attachEvent && (key == "focus" || "blur" || "onload" || "unload")) { //不可冒泡并且不可捕获，主要是ie9-
-            key1 = key;
+        if (old_browser && !(key != "onfocus" || "onblur" || "onload" || "unload")) { //不可冒泡并且不可捕获，主要是ie9-
+            int_key = key;
+            // (key == "onfocus" || "onblur" || "onload" || "unload")返回错误
             forEach(value, function (value, key) {
-                value1 = value;
+                int_value = value;
                 forEach(dom(document.body, key), function (value) {
-                    value.attachEvent(key1, function (e) {
+                    value.attachEvent(int_key, function (e) {
                         e.target = e.srcElement;
-                        forEach(value1, function (value) {
+                        forEach(int_value, function (value) {
                             value.call(e.target, e);
                         });
                     });
@@ -36,38 +36,55 @@ function iniEvent(addEventListener) {
             });
             return;
         }
-        document.addEventListener(key, function (e) { //事件为捕获类型
-            if (addEventListener) {
-                e.target = e.srcElement;
+        document.addEventListener(key, function (event) { //事件为捕获类型
+            if (old_browser) {
+                event.target = event.srcElement;
             }
             forEach(value, function (value, key) {
-                This = targetNode(e.target, key);
+                This = targetNode(event.target, key);
                 //event.relatedTarget属性在mouseover中相当于IE浏览器的event.fromElement属性，在mouseout中相当于IE浏览器的event.toElement
-                if (e.type == "mouseover") {
-                    e.relatedTarget = e.relatedTarget || e.fromElement;
-                } else if (e.type == "mouseout") {
-                    e.relatedTarget = e.relatedTarget || e.toElement;
+                if (event.type == "mouseover") {
+                    relatedTarget = event.relatedTarget || event.fromElement;
+                } else if (event.type == "mouseout") {
+                    relatedTarget = event.relatedTarget || event.toElement;
                 }
-                if (e.relatedTarget && targetNode(e.relatedTarget, key)) {
+                if (relatedTarget && targetNode(relatedTarget, key)) {
                     return;
                 }
+                event.relatedTarget = relatedTarget;
                 if (This) {
+                    var child = getElements(This.obj.parent);
+                    var node_arr = node_filter(child, key);
+                    var index = node_arr.indexOf(This);
+                    var obj = {
+                        child: child,
+                        className: key,
+                        node_arr: node_arr,
+                        index: index,
+                        get_node_arr: function (cls) {
+                            return node_filter(child, cls);
+                        },
+                        get_node: function (cls, i) {
+                            return this.get_node_arr(cls)[i == undefined ? index : i];
+                        }
+                    };
                     forEach(value, function (value) {
-                        value.call(This, e);
+                        value.call(This, event, obj);
                     });
                 }
             });
         }, true);
     });
 
-    function targetNode(dom, str) { //判断是否有父元素符合要求，有，返回这个元素
-        if (dom) {
-            if (isClass(dom, str)) {
-                return dom;
+    function targetNode(node, str) { //判断是否有父元素符合要求，有，返回这个元素
+        if (node) {
+            if (isClass(node, str)) {
+                return node;
             } else {
-                return targetNode(dom.parentNode, str);
+                return targetNode(node.parentNode, str);
             }
+        } else {
+            return false;
         }
-        return false;
     }
 }
